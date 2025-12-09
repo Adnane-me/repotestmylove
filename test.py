@@ -1,2 +1,2 @@
 print('githup action')
-print('test')
+print('test2')
