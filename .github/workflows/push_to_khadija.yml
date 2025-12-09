@@ -1,4 +1,4 @@
-name: Push to Khadija Repo
+name: Push to Khadija Repo - Diagnostic
 on:
   push:
     branches:
@@ -15,13 +15,26 @@ jobs:
           git config --global user.email "Adnane.Mehdaoui@usmba.ac.ma"
           git config --global user.name "Adnane-me"
 
-      - name: Push to Khadija
+      - name: Check Secret
+        run: |
+          if [ -z "${{ secrets.TEST }}" ]; then
+            echo "❌ Secret TEST is empty"
+            exit 1
+          else
+            echo "✅ Secret TEST is present"
+          fi
+
+      - name: Test Push to Khadija
         env:
           GH_TOKEN: ${{ secrets.TEST }}
         run: |
-          # Supprime le remote si déjà ajouté
+          # Supprime remote si existant
           git remote remove khadija || true
-          # Ajoute le remote avec ton PAT
+          # Ajoute remote avec token
           git remote add khadija https://Adnane-me:${GH_TOKEN}@github.com/khadijaelmaaroufi/testadnankhadija.git
-          # Push avec force pour créer la branche si nécessaire
-          git push -u khadija main --force
+          
+          echo "🔹 Test d'accès au repo de Khadija"
+          git ls-remote khadija || echo "❌ Impossible d'accéder au repo : vérifie le token et permissions"
+
+          echo "🔹 Tentative de push"
+          git push khadija main --force || echo "❌ Push échoué : vérifie le token et que le repo est accessible"
