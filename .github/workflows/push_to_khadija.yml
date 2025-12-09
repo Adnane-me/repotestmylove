@@ -2,7 +2,7 @@ name: Push to Khadija Repo
 on:
   push:
     branches:
-      - main  # change si ta branche est différente
+      - main
 
 jobs:
   sync:
@@ -10,8 +10,18 @@ jobs:
     steps:
       - uses: actions/checkout@v3
 
-      - run: |
+      - name: Configure Git
+        run: |
           git config --global user.email "Adnane.Mehdaoui@usmba.ac.ma"
           git config --global user.name "Adnane-me"
-          git remote add khadija https://Adnane-me:${{ secrets.TEST }}@github.com/khadijaelmaaroufi/testadnankhadija.git
+
+      - name: Push to Khadija
+        env:
+          GH_TOKEN: ${{ secrets.TEST }}
+        run: |
+          # Supprime le remote si déjà ajouté
+          git remote remove khadija || true
+          # Ajoute le remote avec ton PAT
+          git remote add khadija https://Adnane-me:${GH_TOKEN}@github.com/khadijaelmaaroufi/testadnankhadija.git
+          # Push avec force pour créer la branche si nécessaire
           git push -u khadija main --force
