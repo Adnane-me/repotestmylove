@@ -1,4 +1,5 @@
 name: Push to Khadija Repo - Diagnostic
+
 on:
   push:
     branches:
@@ -34,7 +35,7 @@ jobs:
           git remote add khadija https://Adnane-me:${GH_TOKEN}@github.com/khadijaelmaaroufi/testadnankhadija.git
           
           echo "🔹 Test d'accès au repo de Khadija"
-          git ls-remote khadija || echo "❌ Impossible d'accéder au repo : vérifie le token et permissions"
+          git ls-remote khadija
 
           echo "🔹 Tentative de push"
-          git push khadija main --force || echo "❌ Push échoué : vérifie le token et que le repo est accessible"
+          git push khadija main --force
