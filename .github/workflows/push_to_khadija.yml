@@ -3,19 +3,26 @@ name: Push to Khadija Repo - Diagnostic
 on:
   push:
     branches:
-      - main
+      - main  # ou la branche que tu veux surveiller
 
 jobs:
   sync:
     runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v3
 
+    steps:
+      # 1️⃣ Checkout le repo, sans persister les credentials
+      - name: Checkout repository
+        uses: actions/checkout@v3
+        with:
+          persist-credentials: false
+
+      # 2️⃣ Configurer Git (nom et email)
       - name: Configure Git
         run: |
           git config --global user.email "Adnane.Mehdaoui@usmba.ac.ma"
           git config --global user.name "Adnane-me"
 
+      # 3️⃣ Vérifier que le secret TEST est présent
       - name: Check Secret
         run: |
           if [ -z "${{ secrets.TEST }}" ]; then
@@ -25,17 +32,21 @@ jobs:
             echo "✅ Secret TEST is present"
           fi
 
+      # 4️⃣ Ajouter le remote et pousser
       - name: Test Push to Khadija
         env:
           GH_TOKEN: ${{ secrets.TEST }}
         run: |
-          # Supprime remote si existant
+          # Supprime remote si déjà présent
           git remote remove khadija || true
-          # Ajoute remote avec token
-          git remote add khadija https://Adnane-me:${GH_TOKEN}@github.com/khadijaelmaaroufi/testadnankhadija.git
-          
+
+          # Ajoute le remote avec PAT et x-access-token
+          git remote add khadija https://x-access-token:${GH_TOKEN}@github.com/khadijaelmaaroufi/testadnankhadija.git
+
+          # Vérifie l'accès
           echo "🔹 Test d'accès au repo de Khadija"
           git ls-remote khadija
 
+          # Push sur main
           echo "🔹 Tentative de push"
           git push khadija main --force
