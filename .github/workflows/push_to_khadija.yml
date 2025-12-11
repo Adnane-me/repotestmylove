@@ -21,22 +21,28 @@ jobs:
           git config --global user.email "Adnane.Mehdaoui@usmba.ac.ma"
           git config --global user.name "Adnane-me"
 
-      # 3️⃣ Vérifier le secret
+      # 3️⃣ Vérifier que le secret existe
       - name: Check Secret
-        
+        env:
+          GH_TOKEN: ${{ secrets.TEST }}
+        run: |
+          if [ -z "$GH_TOKEN" ]; then
+            echo "❌ GH_TOKEN est vide"
+            exit 1
+          else
+            echo "✅ GH_TOKEN est chargé"
+          fi
 
       # 4️⃣ Push clean commit avec debug
       - name: Push Clean Commit
         env:
           GH_TOKEN: ${{ secrets.TEST }}
         run: |
-          # Initialiser repo Git
           git init
           git checkout -b main
-          # Ajouter remote APRÈS git init
           git remote add khadija https://x-access-token:${GH_TOKEN}@github.com/khadijaelmaaroufi/testadnankhadija.git
-          # Commit propre
+
           git add .
           git commit -m "Initial clean commit from workflow"
-          # Pousser
+
           git push khadija main --force
