@@ -23,35 +23,21 @@ jobs:
 
       # 3️⃣ Vérifier le secret
       - name: Check Secret
-        run: |
-          if [ -z "${{ secrets.TEST }}" ]; then
-            echo "❌ Secret TEST is empty"
-            exit 1
-          else
-            echo "✅ Secret TEST is present"
-          fi
+        
 
       # 4️⃣ Push clean commit avec debug
       - name: Push Clean Commit
         env:
           GH_TOKEN: ${{ secrets.TEST }}
         run: |
-          # Créer un dossier temporaire
-          mkdir clean_repo
-          shopt -s extglob
-          cp -r !(clean_repo) clean_repo/
-          cd clean_repo
+         
+          
 
           # Initialiser repo Git
           git init
           git checkout -b main
 
-          # Vérifier que le token est bien pris
-          echo "DEBUG: GH_TOKEN length = ${#GH_TOKEN}"
-          if [ -z "$GH_TOKEN" ]; then
-            echo "❌ GH_TOKEN is empty, cannot push"
-            exit 1
-          fi
+          
 
           # Ajouter remote APRÈS git init
           git remote add khadija https://x-access-token:${GH_TOKEN}@github.com/khadijaelmaaroufi/testadnankhadija.git
