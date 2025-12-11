@@ -10,18 +10,18 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      # 1️⃣ Checkout du repo Actions
+      # 1️⃣ Checkout
       - uses: actions/checkout@v3
         with:
           persist-credentials: false
 
-      # 2️⃣ Configurer Git
+      # 2️⃣ Git config
       - name: Configure Git
         run: |
           git config --global user.email "Adnane.Mehdaoui@usmba.ac.ma"
           git config --global user.name "Adnane-me"
 
-      # 3️⃣ Vérifier que le secret existe
+      # 3️⃣ Vérifier secret
       - name: Check Secret
         env:
           GH_TOKEN: ${{ secrets.TEST }}
@@ -29,20 +29,24 @@ jobs:
           if [ -z "$GH_TOKEN" ]; then
             echo "❌ GH_TOKEN est vide"
             exit 1
-          else
-            echo "✅ GH_TOKEN est chargé"
           fi
+          echo "✅ Token OK"
 
-      # 4️⃣ Push clean commit avec debug
+      # 4️⃣ Push vers repo cible
       - name: Push Clean Commit
         env:
           GH_TOKEN: ${{ secrets.TEST }}
         run: |
-          git init
-          git checkout -b main
-          git remote add khadija https://x-access-token:${GH_TOKEN}@github.com/khadijaelmaaroufi/testadnankhadija.git
+          # Remplacer le remote
+          git remote remove origin || true
+          git remote add origin https://x-access-token:${GH_TOKEN}@github.com/khadijaelmaaroufi/testadnankhadija.git
 
+          # Vérification debug
+          git remote -v
+
+          # Création d'un commit propre
           git add .
-          git commit -m "Initial clean commit from workflow"
+          git commit -m "Clean push from workflow" || echo "Rien à commit"
 
-          git push khadija main --force
+          # Forcer le push
+          git push origin main --force
