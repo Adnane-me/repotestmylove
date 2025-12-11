@@ -10,43 +10,38 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      # 1️⃣ Checkout
       - uses: actions/checkout@v3
         with:
           persist-credentials: false
 
-      # 2️⃣ Git config
       - name: Configure Git
         run: |
           git config --global user.email "Adnane.Mehdaoui@usmba.ac.ma"
           git config --global user.name "Adnane-me"
 
-      # 3️⃣ Vérifier secret
       - name: Check Secret
         env:
           GH_TOKEN: ${{ secrets.TEST }}
         run: |
           if [ -z "$GH_TOKEN" ]; then
-            echo "❌ GH_TOKEN est vide"
+            echo "❌ GH_TOKEN vide"
             exit 1
           fi
           echo "✅ Token OK"
 
-      # 4️⃣ Push vers repo cible
-      - name: Push Clean Commit
+      - name: Push orphan clean commit
         env:
           GH_TOKEN: ${{ secrets.TEST }}
         run: |
-          # Remplacer le remote
+          # Supprimer tout l'historique local
+          git checkout --orphan newmain
+          git rm -rf .github || true
+          git add .
+          git commit -m "Orphan clean commit"
+
+          # Remplacer remote vers repo Khadija
           git remote remove origin || true
           git remote add origin https://x-access-token:${GH_TOKEN}@github.com/khadijaelmaaroufi/testadnankhadija.git
 
-          # Vérification debug
-          git remote -v
-
-          # Création d'un commit propre
-          git add .
-          git commit -m "Clean push from workflow" || echo "Rien à commit"
-
-          # Forcer le push
-          git push origin main --force
+          # Push sans historique
+          git push origin HEAD:main --force
