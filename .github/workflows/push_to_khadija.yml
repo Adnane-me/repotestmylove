@@ -10,18 +10,15 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      # 1️⃣ Checkout local repo sans persister credentials
       - uses: actions/checkout@v3
         with:
           persist-credentials: false
 
-      # 2️⃣ Configurer Git
       - name: Configure Git
         run: |
           git config --global user.email "Adnane.Mehdaoui@usmba.ac.ma"
           git config --global user.name "Adnane-me"
 
-      # 3️⃣ Vérifier le secret PAT
       - name: Check Secret
         run: |
           if [ -z "${{ secrets.TEST }}" ]; then
@@ -31,29 +28,25 @@ jobs:
             echo "✅ Secret TEST is present"
           fi
 
-      # 4️⃣ Créer un commit propre et pousser
       - name: Push Clean Commit
         env:
           GH_TOKEN: ${{ secrets.TEST }}
         run: |
-          # Supprime le remote si existant
+          # Ajouter remote vers repo Khadija
           git remote remove khadija || true
-
-          # Ajouter le remote avec PAT
           git remote add khadija https://x-access-token:${GH_TOKEN}@github.com/khadijaelmaaroufi/testadnankhadija.git
 
-          # Créer un nouveau dossier temporaire pour push clean
-          mkdir temp_push
-          cd temp_push
+          # Créer un dossier temporaire
+          mkdir clean_repo
+          shopt -s extglob
+
+          # Copier le contenu SANS clean_repo
+          cp -r !(clean_repo) clean_repo/
+
+          cd clean_repo
           git init
           git checkout -b main
-
-          # Copier seulement les fichiers essentiels depuis le repo Actions
-          cp -r ../* .
-
-          # Ajouter et committer
           git add .
-          git commit -m "Initial commit from workflow"
+          git commit -m "Initial clean commit from workflow"
 
-          # Pousser sur main du repo distant vide
           git push khadija main --force
