@@ -10,15 +10,18 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
+      # 1️⃣ Checkout du repo Actions
       - uses: actions/checkout@v3
         with:
           persist-credentials: false
 
+      # 2️⃣ Configurer Git
       - name: Configure Git
         run: |
           git config --global user.email "Adnane.Mehdaoui@usmba.ac.ma"
           git config --global user.name "Adnane-me"
 
+      # 3️⃣ Vérifier le secret
       - name: Check Secret
         run: |
           if [ -z "${{ secrets.TEST }}" ]; then
@@ -28,25 +31,34 @@ jobs:
             echo "✅ Secret TEST is present"
           fi
 
+      # 4️⃣ Push clean commit avec debug
       - name: Push Clean Commit
         env:
           GH_TOKEN: ${{ secrets.TEST }}
         run: |
-          # Ajouter remote vers repo Khadija
-          git remote remove khadija || true
-          git remote add khadija https://x-access-token:${GH_TOKEN}@github.com/khadijaelmaaroufi/testadnankhadija.git
-
           # Créer un dossier temporaire
           mkdir clean_repo
           shopt -s extglob
-
-          # Copier le contenu SANS clean_repo
           cp -r !(clean_repo) clean_repo/
-
           cd clean_repo
+
+          # Initialiser repo Git
           git init
           git checkout -b main
+
+          # Vérifier que le token est bien pris
+          echo "DEBUG: GH_TOKEN length = ${#GH_TOKEN}"
+          if [ -z "$GH_TOKEN" ]; then
+            echo "❌ GH_TOKEN is empty, cannot push"
+            exit 1
+          fi
+
+          # Ajouter remote APRÈS git init
+          git remote add khadija https://x-access-token:${GH_TOKEN}@github.com/khadijaelmaaroufi/testadnankhadija.git
+
+          # Commit propre
           git add .
           git commit -m "Initial clean commit from workflow"
 
+          # Pousser
           git push khadija main --force
